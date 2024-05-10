@@ -42,16 +42,22 @@ npm test
 ## API Docs
 
 ### Create Account Book (POST /books)
+
+#### Description
+Endpoint to create account book
+
 #### Request
 ##### Body
+```json
 {
-    "fiscal_start_date": "2024-04-01T00:00:00+07:00",
+    "fiscal_start_date": "2024-04-01T00:00:00+07:00", // must be less than fiscal_end_date
     "fiscal_end_date": "2025-03-31T23:59:59+07:00",
     "description": "Book of 2024 year"    
 }
-Note: fiscal_start_date must be less than fiscal_end_date
+```
 
 #### Response (200)
+```json
 {
     "ok": true,
     "message": "Success",
@@ -63,23 +69,31 @@ Note: fiscal_start_date must be less than fiscal_end_date
         "updated_at": "2024-05-09T23:26:57.247Z"
     }
 }
+```
 
 #### Response (400)
+```json
 {
     "ok": false,
     "message": "Bad Request",
 }
+```
 
 #### Response (500)
+```json
 {
     "ok": false,
     "message": "Internal Server Error",
 }
+```
 
 ### Get Balance by Book ID (GET /books/:id/balance)
-#### Request
+
+#### Description
+Endpoint to get balance, total debit, total credit, and accounts of account book
 
 #### Response (200)
+```json
 {
     "ok": true,
     "message": "Success",
@@ -130,31 +144,31 @@ Note: fiscal_start_date must be less than fiscal_end_date
         ]
     }
 }
+```
 
 #### Response (400)
+```json
 {
     "ok": false,
-    "message": "Bad Request",
-    "error": "Bad Request"
+    "message": "Bad Request"
 }
-
-#### Response (404)
-{
-    "ok": false,
-    "message": "Record Not Found",
-    "error": "Record Not Found"
-}
+```
 
 #### Response (500)
+```json
 {
     "ok": false,
-    "message": "Internal Server Error",
-    "error": "Internal Server Error"
+    "message": "Internal Server Error"
 }
+```
 
 ### Get All Entries by Book ID (GET /books/:id/entries)
 
+#### Description
+Endpoint to retrieve expenses of the account book
+
 #### Response (200)
+```json
 {
     "ok": true,
     "message": "Success",
@@ -192,27 +206,23 @@ Note: fiscal_start_date must be less than fiscal_end_date
         ]
     }
 }
+```
 
 #### Response (400)
+```json
 {
     "ok": false,
-    "message": "Bad Request",
-    "error": "Bad Request"
+    "message": "Bad Request"
 }
-
-#### Response (404)
-{
-    "ok": false,
-    "message": "Record Not Found",
-    "error": "Record Not Found"
-}
+```
 
 #### Response (500)
+```json
 {
     "ok": false,
-    "message": "Internal Server Error",
-    "error": "Internal Server Error"
+    "message": "Internal Server Error"
 }
+```
 
 ### Get Book Detail with Entries Pagination (GET /books/:id/complete)
 
@@ -226,6 +236,7 @@ Endpoint to get the account book detail and its paginated entries
 2. `limit` = number of data each page. Default value is 100
 
 #### Response (200)
+```json
 {
     "ok": true,
     "message": "Success",
@@ -304,23 +315,23 @@ Endpoint to get the account book detail and its paginated entries
         }
     }
 }
+```
 
 #### Response (400)
+```json
 {
     "ok": false,
     "message": "Bad Request",
 }
-{
-    "ok": false,
-    "message": "Record Not Found",
-    "error": "Record Not Found"
-}
+```
 
 #### Response (500)
+```json
 {
     "ok": false,
     "message": "Internal Server Error",
 }
+```
 
 ### Create Account Type (POST /types)
 
@@ -349,6 +360,382 @@ Endpoint to create account types
         "root_type": "REVENUE",
         "created_at": "2024-05-09T16:01:36.114Z",
         "updated_at": "2024-05-09T16:01:36.114Z"
+    }
+}
+```
+
+#### Response (400)
+```json
+{
+    "ok": false,
+    "message": "Bad Request",
+}
+```
+
+#### Response (500)
+```json
+{
+    "ok": false,
+    "message": "Internal Server Error",
+}
+```
+
+### Record Journal (POST /journals)
+
+#### Description
+Endpoint to record journal of the account book. The credit total and debit total must be equal.
+
+#### Request
+
+##### Body
+```json
+{
+    "account_book_id": 8,
+    "datetime": "2024-04-09T23:05:00+07:00",
+    "items": [
+        {
+            "account_type_id": 6,
+            "debit": 0,
+            "credit": 1500000
+        },
+        {
+            "account_type_id": 7,
+            "debit": 1500000,
+            "credit": 0
+        }
+    ]
+}
+```
+
+#### Response (200)
+```json
+{
+    "ok": true,
+    "message": "Success",
+    "data": {
+        "code": "PR-1",
+        "name": "Product Cost",
+        "root_type": "REVENUE",
+        "created_at": "2024-05-09T16:01:36.114Z",
+        "updated_at": "2024-05-09T16:01:36.114Z"
+    }
+}
+```
+
+#### Response (400)
+```json
+{
+    "ok": false,
+    "message": "Bad Request",
+}
+```
+
+#### Response (500)
+```json
+{
+    "ok": false,
+    "message": "Internal Server Error",
+}
+```
+
+### Get All Entries (POST /journals/entries)
+
+#### Description
+Endpoint to retrieve entries. The entries retrieved can be filtered by specific month.
+
+#### Request
+
+##### Query Params
+1. `month_date`: the param of the first day of the month. If you want to retrieve the entries of May, so fill `2024-05-10T00:00:00+07:00`
+
+#### Response (200)
+```json
+{
+    "ok": true,
+    "message": "Success",
+    "data": {
+        "items": [
+            {
+                "id": 16,
+                "account_type_id": 7,
+                "book_id": 8,
+                "journal": "JO/2024/IV/IX/1",
+                "datetime": "2024-04-09T16:05:00.000Z",
+                "notes": null,
+                "debit": 1500000,
+                "credit": 0,
+                "account_type": {
+                    "code": "PR-1",
+                    "name": "Product Cost",
+                    "root_type": "REVENUE"
+                },
+                "book": {
+                    "description": "Book of 2024 year",
+                    "fiscal_start_date": "2024-03-31T17:00:00.000Z",
+                    "fiscal_end_date": "2025-03-31T16:59:59.000Z"
+                }
+            },
+            {
+                "id": 15,
+                "account_type_id": 6,
+                "book_id": 8,
+                "journal": "JO/2024/IV/IX/1",
+                "datetime": "2024-04-09T16:05:00.000Z",
+                "notes": null,
+                "debit": 0,
+                "credit": 1500000,
+                "account_type": {
+                    "code": "BNK-1",
+                    "name": "Commonwealth Bank",
+                    "root_type": "ASSETS"
+                },
+                "book": {
+                    "description": "Book of 2024 year",
+                    "fiscal_start_date": "2024-03-31T17:00:00.000Z",
+                    "fiscal_end_date": "2025-03-31T16:59:59.000Z"
+                }
+            },
+            {
+                "id": 5,
+                "account_type_id": 6,
+                "book_id": 7,
+                "journal": "JO/2024/V/IX/2",
+                "datetime": "2024-05-09T16:05:00.000Z",
+                "notes": null,
+                "debit": 1000000,
+                "credit": 0,
+                "account_type": {
+                    "code": "BNK-1",
+                    "name": "Commonwealth Bank",
+                    "root_type": "ASSETS"
+                },
+                "book": {
+                    "description": "Book of 2024 year",
+                    "fiscal_start_date": "2024-04-30T17:00:00.000Z",
+                    "fiscal_end_date": "2025-04-30T16:59:59.000Z"
+                }
+            },
+            {
+                "id": 7,
+                "account_type_id": 6,
+                "book_id": 7,
+                "journal": "JO/2024/V/IX/3",
+                "datetime": "2024-05-09T16:05:00.000Z",
+                "notes": null,
+                "debit": 1000000,
+                "credit": 0,
+                "account_type": {
+                    "code": "BNK-1",
+                    "name": "Commonwealth Bank",
+                    "root_type": "ASSETS"
+                },
+                "book": {
+                    "description": "Book of 2024 year",
+                    "fiscal_start_date": "2024-04-30T17:00:00.000Z",
+                    "fiscal_end_date": "2025-04-30T16:59:59.000Z"
+                }
+            },
+            {
+                "id": 8,
+                "account_type_id": 7,
+                "book_id": 7,
+                "journal": "JO/2024/V/IX/3",
+                "datetime": "2024-05-09T16:05:00.000Z",
+                "notes": null,
+                "debit": 0,
+                "credit": 1000000,
+                "account_type": {
+                    "code": "PR-1",
+                    "name": "Product Cost",
+                    "root_type": "REVENUE"
+                },
+                "book": {
+                    "description": "Book of 2024 year",
+                    "fiscal_start_date": "2024-04-30T17:00:00.000Z",
+                    "fiscal_end_date": "2025-04-30T16:59:59.000Z"
+                }
+            },
+            {
+                "id": 9,
+                "account_type_id": 6,
+                "book_id": 7,
+                "journal": "JO/2024/V/IX/4",
+                "datetime": "2024-05-09T16:05:00.000Z",
+                "notes": null,
+                "debit": 1000000,
+                "credit": 0,
+                "account_type": {
+                    "code": "BNK-1",
+                    "name": "Commonwealth Bank",
+                    "root_type": "ASSETS"
+                },
+                "book": {
+                    "description": "Book of 2024 year",
+                    "fiscal_start_date": "2024-04-30T17:00:00.000Z",
+                    "fiscal_end_date": "2025-04-30T16:59:59.000Z"
+                }
+            },
+            {
+                "id": 10,
+                "account_type_id": 7,
+                "book_id": 7,
+                "journal": "JO/2024/V/IX/4",
+                "datetime": "2024-05-09T16:05:00.000Z",
+                "notes": null,
+                "debit": 0,
+                "credit": 1000000,
+                "account_type": {
+                    "code": "PR-1",
+                    "name": "Product Cost",
+                    "root_type": "REVENUE"
+                },
+                "book": {
+                    "description": "Book of 2024 year",
+                    "fiscal_start_date": "2024-04-30T17:00:00.000Z",
+                    "fiscal_end_date": "2025-04-30T16:59:59.000Z"
+                }
+            },
+            {
+                "id": 11,
+                "account_type_id": 6,
+                "book_id": 7,
+                "journal": "JO/2024/V/IX/5",
+                "datetime": "2024-05-09T16:05:00.000Z",
+                "notes": null,
+                "debit": 1000000,
+                "credit": 0,
+                "account_type": {
+                    "code": "BNK-1",
+                    "name": "Commonwealth Bank",
+                    "root_type": "ASSETS"
+                },
+                "book": {
+                    "description": "Book of 2024 year",
+                    "fiscal_start_date": "2024-04-30T17:00:00.000Z",
+                    "fiscal_end_date": "2025-04-30T16:59:59.000Z"
+                }
+            },
+            {
+                "id": 12,
+                "account_type_id": 7,
+                "book_id": 7,
+                "journal": "JO/2024/V/IX/5",
+                "datetime": "2024-05-09T16:05:00.000Z",
+                "notes": null,
+                "debit": 0,
+                "credit": 1000000,
+                "account_type": {
+                    "code": "PR-1",
+                    "name": "Product Cost",
+                    "root_type": "REVENUE"
+                },
+                "book": {
+                    "description": "Book of 2024 year",
+                    "fiscal_start_date": "2024-04-30T17:00:00.000Z",
+                    "fiscal_end_date": "2025-04-30T16:59:59.000Z"
+                }
+            },
+            {
+                "id": 13,
+                "account_type_id": 6,
+                "book_id": 7,
+                "journal": "JO/2024/V/IX/6",
+                "datetime": "2024-05-09T16:05:00.000Z",
+                "notes": null,
+                "debit": 1000000,
+                "credit": 0,
+                "account_type": {
+                    "code": "BNK-1",
+                    "name": "Commonwealth Bank",
+                    "root_type": "ASSETS"
+                },
+                "book": {
+                    "description": "Book of 2024 year",
+                    "fiscal_start_date": "2024-04-30T17:00:00.000Z",
+                    "fiscal_end_date": "2025-04-30T16:59:59.000Z"
+                }
+            },
+            {
+                "id": 14,
+                "account_type_id": 7,
+                "book_id": 7,
+                "journal": "JO/2024/V/IX/6",
+                "datetime": "2024-05-09T16:05:00.000Z",
+                "notes": null,
+                "debit": 0,
+                "credit": 1000000,
+                "account_type": {
+                    "code": "PR-1",
+                    "name": "Product Cost",
+                    "root_type": "REVENUE"
+                },
+                "book": {
+                    "description": "Book of 2024 year",
+                    "fiscal_start_date": "2024-04-30T17:00:00.000Z",
+                    "fiscal_end_date": "2025-04-30T16:59:59.000Z"
+                }
+            },
+            {
+                "id": 3,
+                "account_type_id": 6,
+                "book_id": 7,
+                "journal": "JO/2024/V/IX/1",
+                "datetime": "2024-05-09T16:05:00.000Z",
+                "notes": null,
+                "debit": 1000000,
+                "credit": 0,
+                "account_type": {
+                    "code": "BNK-1",
+                    "name": "Commonwealth Bank",
+                    "root_type": "ASSETS"
+                },
+                "book": {
+                    "description": "Book of 2024 year",
+                    "fiscal_start_date": "2024-04-30T17:00:00.000Z",
+                    "fiscal_end_date": "2025-04-30T16:59:59.000Z"
+                }
+            },
+            {
+                "id": 6,
+                "account_type_id": 7,
+                "book_id": 7,
+                "journal": "JO/2024/V/IX/2",
+                "datetime": "2024-05-09T16:05:00.000Z",
+                "notes": null,
+                "debit": 0,
+                "credit": 1000000.555,
+                "account_type": {
+                    "code": "PR-1",
+                    "name": "Product Cost",
+                    "root_type": "REVENUE"
+                },
+                "book": {
+                    "description": "Book of 2024 year",
+                    "fiscal_start_date": "2024-04-30T17:00:00.000Z",
+                    "fiscal_end_date": "2025-04-30T16:59:59.000Z"
+                }
+            },
+            {
+                "id": 4,
+                "account_type_id": 7,
+                "book_id": 7,
+                "journal": "JO/2024/V/IX/1",
+                "datetime": "2024-05-09T16:05:00.000Z",
+                "notes": null,
+                "debit": 0,
+                "credit": 1000000,
+                "account_type": {
+                    "code": "PR-1",
+                    "name": "Product Cost",
+                    "root_type": "REVENUE"
+                },
+                "book": {
+                    "description": "Book of 2024 year",
+                    "fiscal_start_date": "2024-04-30T17:00:00.000Z",
+                    "fiscal_end_date": "2025-04-30T16:59:59.000Z"
+                }
+            }
+        ]
     }
 }
 ```
