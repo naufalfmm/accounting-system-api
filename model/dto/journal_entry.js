@@ -1,6 +1,5 @@
 'use strict';
 
-const { root_type } = require("../../const/const");
 const { journal_entry_item_response_from_dao } = require("./journal_entry_item");
 
 module.exports.journal_entry_response_from_dao = (dao) => {
